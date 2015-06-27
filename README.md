@@ -1,3 +1,2 @@
-# businessposter
+# Business Card Poster Layout Design
 
-A work in progress...
