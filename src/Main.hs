@@ -52,7 +52,7 @@ main = mainWith $ pad 1.1 $ center $ (textLines description # scale 30 # pad 1.1
 -- Cards and Canvas
 
 canvas :: Diagram B
-canvas  = square 1 # scaleX 1000 # scaleY 750 # alignTL
+canvas  = square 1 # scaleX 1000 # scaleY 750 # alignTL # fc black # lw none
 
 cards   :: Diagram B
 cards    = alignTL $ vcat $ extersperse (strutY vspace) $ topCards ++ midCards ++ botCards
@@ -61,10 +61,14 @@ midCards = replicate 6 $ hrow
 botCards = [ vrow, hrow ]
 hrow     = alignTL $ hRep spacesPerHRow hcard (strutX hrowhspace)
 vrow     = alignTL $ hRep spacesPerVRow vcard (strutX vrowhspace)
-hcard    = square 1 # scaleX 90 # scaleY 55
-vcard    = square 1 # scaleY 90 # scaleX 55
+hcard    = square 1 # scaleX 90 # scaleY 55 # fcA tyellow # lw none
+vcard    = square 1 # scaleY 90 # scaleX 55 # fcA tred    # lw none
 
 -- Combinators
+
+tyellow = yellow `withOpacity` 0.8
+tred    = red    `withOpacity` 0.8
+tblue   = blue   `withOpacity` 0.8
 
 hjoin spacer items      = hcat $ intercalate [spacer] (map return items)
 hRep  n      space item = hjoin space $ replicate n item
