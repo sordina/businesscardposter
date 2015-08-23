@@ -15,6 +15,8 @@ import Text.InterpolatedString.Perl6
 -- Known Dimensions
 
 pwidth, pheight, hrowhspace :: Double
+rwidth        = 1017
+rheight       = 813
 pwidth        = 1000
 pheight       = 750
 hwidth        = 90
@@ -25,8 +27,12 @@ cardsPerHRow  = 10
 cardsPerVRow  = 15
 vrows         = 2
 hrows         = 8
+hborder       = (rwidth  - pwidth ) / 2
+vborder       = (rheight - pheight) / 2
 
 description = [qc|
+  rwidth        = { rwidth       }
+  rheight       = { rheight      }
   pwidth        = { pwidth       }
   pheight       = { pheight      }
   hwidth        = { hwidth       }
@@ -35,6 +41,8 @@ description = [qc|
   cardsPerVRow  = { cardsPerVRow }
   vrows         = { vrows        }
   hrows         = { hrows        }
+  hborder       = { hborder      }
+  vborder       = { vborder      }
 |]
 
 -- Calculated Dimensions
@@ -65,22 +73,25 @@ hmeasures = left <> ticks
   where
   left          = square 1 # scaleX hrowmidoffset # translateX (hrowmidoffset / 2) # translateY 25
   ticks         = mconcat $ map hmeasure hmidoffsets
-  hmeasure    x = square 1 # scaleY 50 # translateX x # translateY 25 ||| measureText (take 7 $ show x)
-  measureText t = topLeftText t # fontSize (local 20) # translateY 85
+  hmeasure    x = square 1 # scaleY 50 # translateX x # translateY 25 ||| mt2 x
+  measureText t = (topLeftText t # fontSize (local 20) # translateY 115)
+  mt2         x = measureText (take 7 $ show x) === strutY 33 === measureText (take 7 $ show (x + hborder))
 
 vmeasures = left <> ticks
   where
   left          = square 1 # scaleX vrowmidoffset # translateX (vrowmidoffset / 2) # translateY 25
   ticks         = mconcat $ map hmeasure vmidoffsets
-  hmeasure    x = square 1 # scaleY 50 # translateX x # translateY 25 ||| measureText (take 7 $ show x)
+  hmeasure    x = square 1 # scaleY 50 # translateX x # translateY 25 ||| mt2 x
   measureText t = topLeftText t # fontSize (local 15) # translateY (-15)
+  mt2         x = measureText (take 7 $ show x) === strutY 20 === measureText (take 7 $ show (x + hborder))
 
 smeasures = top <> ticks
   where
   top           = square 1 # scaleY hcolmidoffset # translateY (negate $ hcolmidoffset / 2) # translateX 25
   ticks         = mconcat $ map smeasure smidoffsets
-  smeasure    y = square 1 # scaleX 50 # translateY (negate y) # translateX 25 === measureText (take 7 $ show y)
+  smeasure    y = square 1 # scaleX 50 # translateY (negate y) # translateX 25 === mt2 y
   measureText t = topLeftText t # fontSize (local 20) # translateX 70
+  mt2         y = measureText (take 7 $ show y) === strutY 28 === measureText (take 7 $ show (y + vborder))
 
 hmidoffsets = map zzz indexes
   where
@@ -106,7 +117,7 @@ smidoffsets = [hcolmidoffset, colvspace + hheight + vcolmidoffset]
   lastmid    = (head $ reverse $ midoffsets) + hheight / 2
 
 canvas :: Diagram B
-canvas  = square 1 # scaleX 1000 # scaleY 750 # alignTL # fc black # lw none
+canvas  = square 1 # scaleX pwidth # scaleY pheight # alignTL # fc black # lw none
 
 cards   :: Diagram B
 cards    = alignTL $ vcat $ extersperse (strutY vspace) $ topCards ++ midCards ++ botCards
