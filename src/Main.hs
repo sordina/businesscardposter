@@ -19,7 +19,9 @@ pwidth        = 1000
 pheight       = 750
 hwidth        = 90
 hheight       = 55
-cardsPerhRow  = 10
+vwidth        = hheight
+vheight       = hwidth
+cardsPerHRow  = 10
 cardsPerVRow  = 15
 vrows         = 2
 hrows         = 8
@@ -29,7 +31,7 @@ description = [qc|
   pheight       = { pheight      }
   hwidth        = { hwidth       }
   hheight       = { hheight      }
-  cardsPerhRow  = { cardsPerhRow }
+  cardsPerHRow  = { cardsPerHRow }
   cardsPerVRow  = { cardsPerVRow }
   vrows         = { vrows        }
   hrows         = { hrows        }
@@ -37,19 +39,71 @@ description = [qc|
 
 -- Calculated Dimensions
 
-hrowhspace    = (pwidth - (cardsPerhRow * hwidth )) / spacesPerHRow
-vrowhspace    = (pwidth - (cardsPerVRow * hheight)) / spacesPerVRow
-spacesPerHRow = succ cardsPerhRow
+hrowhspace    = (pwidth  - (cardsPerHRow * hwidth )) / spacesPerHRow
+vrowhspace    = (pwidth  - (cardsPerVRow * hheight)) / spacesPerVRow
+colvspace     = (pheight - (hrows        * hheight) - (vrows * vheight)) / spacesPerCol
+spacesPerHRow = succ cardsPerHRow
 spacesPerVRow = succ cardsPerVRow
+spacesPerCol  = succ (hrows + vrows)
 vSpaces       = succ (vrows + hrows)
 vspace        = (pheight - (vrows * hwidth + hrows * hheight)) / vSpaces
+hrowmidoffset = hrowhspace + hwidth / 2
+vrowmidoffset = vrowhspace + vwidth / 2
+hcolmidoffset = colvspace  + hheight / 2
+vcolmidoffset = colvspace  + vheight / 2
 
 -- Go
 
 main :: IO ()
-main = mainWith $ pad 1.1 $ center $ (textLines description # scale 30 # pad 1.1) ||| strutX 250 ||| (cards <> canvas)
+main = mainWith $ pad 1.1 $ center $ (textLines description # scale 30 # pad 1.1)
+   ||| strutX 250
+   ||| (hmeasures === ((cards <> canvas) ||| smeasures) === vmeasures)
 
--- Cards and Canvas
+-- Cards and Canvas and Measurements
+
+hmeasures = left <> ticks
+  where
+  left          = square 1 # scaleX hrowmidoffset # translateX (hrowmidoffset / 2) # translateY 25
+  ticks         = mconcat $ map hmeasure hmidoffsets
+  hmeasure    x = square 1 # scaleY 50 # translateX x # translateY 25 ||| measureText (take 7 $ show x)
+  measureText t = topLeftText t # fontSize (local 20) # translateY 85
+
+vmeasures = left <> ticks
+  where
+  left          = square 1 # scaleX vrowmidoffset # translateX (vrowmidoffset / 2) # translateY 25
+  ticks         = mconcat $ map hmeasure vmidoffsets
+  hmeasure    x = square 1 # scaleY 50 # translateX x # translateY 25 ||| measureText (take 7 $ show x)
+  measureText t = topLeftText t # fontSize (local 15) # translateY (-15)
+
+smeasures = top <> ticks
+  where
+  top           = square 1 # scaleY hcolmidoffset # translateY (negate $ hcolmidoffset / 2) # translateX 25
+  ticks         = mconcat $ map smeasure smidoffsets
+  smeasure    y = square 1 # scaleX 50 # translateY (negate y) # translateX 25 === measureText (take 7 $ show y)
+  measureText t = topLeftText t # fontSize (local 20) # translateX 70
+
+hmidoffsets = map zzz indexes
+  where
+  m       = hwidth + hrowhspace
+  zzz x   = m * x + hrowmidoffset
+  indexes = zipWith const [0..] (replicate cardsPerHRow ())
+
+vmidoffsets = map zzz indexes
+  where
+  m       = vwidth + vrowhspace
+  zzz x   = m * x + vrowmidoffset
+  indexes = zipWith const [0..] (replicate cardsPerVRow ())
+
+smidoffsets = [hcolmidoffset, colvspace + hheight + vcolmidoffset]
+           ++ midoffsets
+           ++ [lastmid + vcolmidoffset, lastmid + colvspace + vheight + hcolmidoffset]
+  where
+  m       = hheight + colvspace
+  c       = 2 * colvspace + hheight + vheight + hcolmidoffset
+  zzz x   = m * x + c
+  midindexes = zipWith const [0..] (replicate (hrows - 2) ())
+  midoffsets = map zzz midindexes
+  lastmid    = (head $ reverse $ midoffsets) + hheight / 2
 
 canvas :: Diagram B
 canvas  = square 1 # scaleX 1000 # scaleY 750 # alignTL # fc black # lw none
@@ -61,8 +115,8 @@ midCards = replicate 6 $ hrow
 botCards = [ vrow, hrow ]
 hrow     = alignTL $ hRep spacesPerHRow hcard (strutX hrowhspace)
 vrow     = alignTL $ hRep spacesPerVRow vcard (strutX vrowhspace)
-hcard    = square 1 # scaleX 90 # scaleY 55 # fcA tyellow # lw none
-vcard    = square 1 # scaleY 90 # scaleX 55 # fcA tred    # lw none
+hcard    = square 1 # scaleX 90 # scaleY 55 # fcA tyellow # lw none # showOrigin
+vcard    = square 1 # scaleY 90 # scaleX 55 # fcA tblue   # lw none # showOrigin
 
 -- Combinators
 
