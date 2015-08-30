@@ -4,10 +4,4 @@
 
 ## Finished Product
 
-![Sun 30 Aug 22:28:48 2015](https://rawgit.com/sordina/businesscardposter/master/doc/Finished_01.JPG)
-
-![Sun 30 Aug 22:28:48 2015](https://rawgit.com/sordina/businesscardposter/master/doc/Finished_02.JPG)
-
-![Sun 30 Aug 22:28:48 2015](https://rawgit.com/sordina/businesscardposter/master/doc/Finished_03.JPG)
-
 ![Sun 30 Aug 22:28:48 2015](https://rawgit.com/sordina/businesscardposter/master/doc/Finished_04.JPG)
